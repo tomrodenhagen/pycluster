@@ -1,9 +1,9 @@
 # Methods
 import numpy as np
 
-from etas_simulation.simulation import get_kernel
-from etas_simulation.utils import *
-from etas_simulation.fitting import *
+from src.simulation import get_kernel
+from src.utils import *
+from src.fitting import *
 from datetime import datetime
 from rpy2 import robjects
 from rpy2.robjects.packages import importr

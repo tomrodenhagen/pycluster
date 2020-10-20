@@ -1,10 +1,10 @@
 import pickle, os
 
-from etas_simulation.declustering import *
-from etas_simulation.metrics import *
-from etas_simulation.fitting import *
-from etas_simulation.utils import *
-from etas_simulation.simulation import *
+from src.declustering import *
+from src.metrics import *
+from src.fitting import *
+from src.utils import *
+from src.simulation import *
 
 import numpy as np
 

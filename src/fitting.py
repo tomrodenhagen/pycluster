@@ -21,7 +21,7 @@ def to_catalogue(events):
     return pd.DataFrame(list(zip(date, time, lat, long, mag)), columns=["date", "time", "lat", "long", "mag"])
 
 
-def fit_ETAS(cat, begin, start, end, lat, long, m0, **kwargs):
+def fit_ETAS(cat, begin, start, end, lat, long, m0, n_iter=3, **kwargs):
     importr("ETAS")
     if not type(cat) is str:
         with localconverter(robjects.default_converter + pandas2ri.converter):
@@ -35,10 +35,14 @@ def fit_ETAS(cat, begin, start, end, lat, long, m0, **kwargs):
     param0 <- c(0.46, 0.23, 0.022, 2.8, 1.12, 0.012, 2.4, 0.35)
     # fitting the model
     ## Not run:
-    fit <- etas(cat, param0=param0,no.itr=3, verbose=FALSE, nthreads=1)
+    fit <- etas(cat, param0=param0,no.itr={n_iter}, verbose=FALSE, nthreads=1)
         ''')
 
     density = robjects.r("rates(fit)")
     params = dict(zip(robjects.r('''names(fit$param)'''), np.array(robjects.r('''fit$param'''))))
-    background = np.array(robjects.r("fit$bk"))
-    return density, params, background
+    mags = np.array(robjects.r("cat$revents[,4]"))
+    beta = np.mean(mags)
+    return density, params, beta
+
+
+

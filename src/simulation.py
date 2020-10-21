@@ -70,7 +70,7 @@ def get_kernel(p, m0):
     return kernel
 
 
-def simulate_etas(t_end, lat, long, kernel_parameter, mu, mu_max, m0, mainshocks=None):
+def simulate_etas(t_end, lat, long, kernel_parameter, mu, mu_max, m0, beta ,mainshocks=None):
     kernel = get_kernel(kernel_parameter, m0)
     # Simulate main shocks
     if mainshocks is None:
@@ -87,7 +87,7 @@ def simulate_etas(t_end, lat, long, kernel_parameter, mu, mu_max, m0, mainshocks
             t_event = e["event"]["t"]
             lat_event = e["event"]["lat"]
             long_event = e["event"]["long"]
-            m_event = rand.exponential(1 / 4) + m0
+            m_event = rand.exponential(beta) + m0
             e["event"].update({"m": m_event})
             intensity = lambda t, lat_, long_: kernel(t - t_event, lat_ - lat_event, long_ - long_event, m_event)
             children = simulate_inhom_poisson(intensity, (t_event, t_end), lat, long, lat_event, long_event,

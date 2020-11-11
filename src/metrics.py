@@ -1,7 +1,7 @@
 #Metrics
 from sklearn.metrics.cluster import homogeneity_score, completeness_score
 import numpy as np
-def c_score(ids1, ids2):
+def v_score(ids1, ids2):
   h = homogeneity_score(ids1, ids2)
   c = completeness_score(ids1, ids2)
   return h * c / (h + c)

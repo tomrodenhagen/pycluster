@@ -1,6 +1,6 @@
 import numpy as np
 import numpy.random as rand
-
+from etas import get_kernel
 def simulate_hom_poisson(lambda_, t, lat, long, mainshock_id=None, as_dict=False):
     n_events = rand.poisson((lat[1] - lat[0]) * (long[1] - long[0]) * (t[1] - t[0]) * lambda_)
     events_t = rand.uniform(t[0], t[1], size=(n_events,))
@@ -57,17 +57,7 @@ def simulate_inhom_poisson(lambda_, t, lat, long, x, y, mainshock_id=None):
     return events
 
 
-def get_kernel(p, m0):
-    # See https://cran.r-project.org/web/packages/ETAS/ETAS.pdf
-    g = lambda t: (p["p"] - 1) / p["c"] * (1 + t / p["c"]) ** (- p["p"])
-    sigma = lambda m: p["D"] * np.exp(p["gamma"] * (m - m0))
-    f = lambda x, y, m: (p["q"] - 1) / (np.pi * sigma(m)) * (1 + (x ** 2 + y ** 2) / sigma(m)) ** (-p["q"])
-    k = lambda m: p["A"] * np.exp(p["alpha"] * (m - m0))
 
-    def kernel(t, x, y, m):
-        return k(m) * f(x, y, m) * g(t)
-
-    return kernel
 
 
 def simulate_etas(t_end, lat, long, kernel_parameter, mu, mu_max, m0, beta ,mainshocks=None):

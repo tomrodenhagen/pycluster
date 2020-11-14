@@ -77,7 +77,7 @@ def simulate_etas(t_end, lat, long, kernel_parameter, mu, mu_max, m0, beta ,main
             t_event = e["event"]["t"]
             lat_event = e["event"]["lat"]
             long_event = e["event"]["long"]
-            m_event = np.clip(rand.exponential(beta), 0, 2) + m0
+            m_event = np.clip(rand.exponential(beta), 0, 2.5) + m0
             e["event"].update({"m": m_event})
             intensity = lambda t, lat_, long_: kernel(t - t_event, lat_ - lat_event, long_ - long_event, m_event)
             children = simulate_inhom_poisson(intensity, (t_event, t_end), lat, long, lat_event, long_event,

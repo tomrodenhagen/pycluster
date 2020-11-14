@@ -36,6 +36,7 @@ def NearestNeigbour(events, **kwargs):
     d = 1.6
     thresh = 0.0001
     cluster_mat = np.zeros((len(events), len(events)))
+    b = np.mean([e["event"]["m"] for e in events])
     for l, e in enumerate(events):
         for i, k in enumerate(events):
             if e["event"]["t"] < k["event"]["t"] or l == i:
@@ -44,7 +45,7 @@ def NearestNeigbour(events, **kwargs):
                 t_delta = (e["event"]["t"] - k["event"]["t"])
                 r_delta = ((e["event"]["lat"] - k["event"]["lat"]) ** 2 + (
                             e["event"]["long"] - k["event"]["long"]) ** 2) ** 0.5
-                cluster_mat[l, i] = t_delta * r_delta ** d * 10 ** (- k["event"]["m"])
+                cluster_mat[l, i] = t_delta * r_delta ** d * 10 ** (- k["event"]["m"] * b)
 
     nnd = np.min(cluster_mat, axis=1)
     parents = np.argmin(cluster_mat, axis=1)
@@ -82,7 +83,7 @@ def from_ETAS(events, days, m0, lat, long, fitted=None, **kwargs):
     back_prob = np.array([mu(e["event"]["lat"], e["event"]["long"]) for e in events]).reshape(-1, 1)
     #x = np.array(robjects.r("probs(fit)"))[2]
 
-    conc_probs = np.concatenate([trigger_prob, back_prob.reshape(1, -1)])
+    conc_probs = np.concatenate([trigger_prob, back_prob.reshape(1, -1)]) + 0.0001 # For numerical stability
 
     conc_probs_normed = conc_probs / np.sum(conc_probs, axis=0)
     parents = []

@@ -11,24 +11,23 @@ from sklearn.mixture import GaussianMixture as gm
 from scipy.sparse.csgraph import connected_components
 
 
-def T_Window_1(t, m):
+def T_Window_1(m):
     if m < 6.5:
-        return (t - 10 ** (m * 0.54 - 0.547), t + 10 ** (m * 0.54 - 0.547))
+        return 10 ** (m * 0.54 - 0.547)
     else:
-        return (t - 10 ** (m * 0.032 + 2.73), t + 10 ** (m * 0.032 + 2.73))
+        return 10 ** (m * 0.032 + 2.73)
 
 
-S_Window_1 = lambda x, m: (x - 10 ** (m * 0.1238 + 0.983) / 111, x + 10 ** (m * 0.1238 + 0.983) / 111)
+S_Window_1 = lambda m: 10 ** (m * 0.1238 + 0.983) / 111
 
 
 def window_method(events, T_Window=T_Window_1, S_Window=S_Window_1, **kwargs):
     cluster_mat = np.zeros((len(events), len(events)))
     for l, e in enumerate(events):
         for i, k in enumerate(events):
-            t_a, t_b = T_Window(k["event"]["t"], k["event"]["m"])
-            x_a, x_b = S_Window(k["event"]["lat"], k["event"]["m"])
-            y_a, y_b = S_Window(k["event"]["long"], k["event"]["m"])
-            if t_a < e["event"]["t"] <= t_b and x_a < e["event"]["lat"] <= x_b and y_a < e["event"]["long"] <= y_b:
+            t_dist = np.abs(k["event"]["t"] - e["event"]["t"])
+            s_dist = ((e["event"]["lat"] - k["event"]["lat"]) ** 2 + (e["event"]["long"] - k["event"]["long"]) ** 2 ) ** 0.5
+            if t_dist < T_Window(k["event"]["m"]) and s_dist < S_Window(k["event"]["m"]):
                 cluster_mat[l, i] = 1
     return connected_components(cluster_mat)[1]
 

@@ -7,6 +7,7 @@ from src.fitting import *
 from datetime import datetime
 from rpy2 import robjects
 from rpy2.robjects.packages import importr
+from sklearn.mixture import GaussianMixture as gm
 from scipy.sparse.csgraph import connected_components
 
 
@@ -35,8 +36,10 @@ def window_method(events, T_Window=T_Window_1, S_Window=S_Window_1, **kwargs):
 def NearestNeigbour(events, **kwargs):
     d = 1.6
     thresh = 0.0001
+    q = 0.5
     cluster_mat = np.zeros((len(events), len(events)))
-    b = np.mean([e["event"]["m"] for e in events])
+
+    distances = []
     for l, e in enumerate(events):
         for i, k in enumerate(events):
             if e["event"]["t"] < k["event"]["t"] or l == i:
@@ -44,16 +47,22 @@ def NearestNeigbour(events, **kwargs):
             else:
                 t_delta = (e["event"]["t"] - k["event"]["t"])
                 r_delta = ((e["event"]["lat"] - k["event"]["lat"]) ** 2 + (
-                            e["event"]["long"] - k["event"]["long"]) ** 2) ** 0.5
-                cluster_mat[l, i] = t_delta * r_delta ** d * 10 ** (- k["event"]["m"] * b)
+                        e["event"]["long"] - k["event"]["long"]) ** 2) ** 0.5
+                distances.append(
+                    [t_delta * 10 ** (- k["event"]["m"] * q) * r_delta ** d * 10 ** (- k["event"]["m"] * (1 - q))])
 
+                cluster_mat[l, i] = t_delta * r_delta ** d * 10 ** (- k["event"]["m"])
     nnd = np.min(cluster_mat, axis=1)
+    gm_ = gm(2)
+    gm_.fit(np.log10(nnd.reshape(-1, 1)))
+    cluster = gm_.predict(np.log10(nnd.reshape(-1, 1)))
     parents = np.argmin(cluster_mat, axis=1)
     cluster_mat = np.zeros((len(events), len(events)))
-    for i, (dist, p) in enumerate(zip(nnd, parents)):
-        if dist < thresh:
+    for i, (cluster, p) in enumerate(zip(cluster, parents)):
+        if cluster == 0:
             cluster_mat[i, p] = 1
             cluster_mat[p, i] = 1
+
 
     return connected_components(cluster_mat)[1]
 

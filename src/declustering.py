@@ -92,7 +92,7 @@ def from_ETAS(events, days, m0, lat, long, fitted=None, **kwargs):
     back_prob = np.array([mu(e["event"]["lat"], e["event"]["long"]) for e in events]).reshape(-1, 1)
     #x = np.array(robjects.r("probs(fit)"))[2]
 
-    conc_probs = np.concatenate([trigger_prob, back_prob.reshape(1, -1)]) + 0.0001 # For numerical stability
+    conc_probs = np.concatenate([trigger_prob, back_prob.reshape(1, -1)]) # For numerical stability
 
     conc_probs_normed = conc_probs / np.sum(conc_probs, axis=0)
     parents = []

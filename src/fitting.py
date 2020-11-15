@@ -21,7 +21,7 @@ def to_catalogue(events):
     return pd.DataFrame(list(zip(date, time, lat, long, mag)), columns=["date", "time", "lat", "long", "mag"])
 
 
-def fit_ETAS(cat, begin, start, end, lat, long, m0, n_iter=4, **kwargs):
+def fit_ETAS(cat, begin, start, end, lat, long, m0, n_iter=3, **kwargs):
     importr("ETAS")
     if not type(cat) is str:
         with localconverter(robjects.default_converter + pandas2ri.converter):
